@@ -14,8 +14,8 @@ def cv2_split(img, split_code):
     return img[:, :, split_code]
 
 
-def cv2_resize(img, width, height, fx, fy):
-    return cv.resize(img, (width, height), fx=fx, fy=fy)
+def cv2_resize(img, width, height, fx, fy, resize_interpolation):
+    return cv.resize(img, (width, height), fx=fx, fy=fy, interpolation=eval(resize_interpolation))
 
 
 def cv2_roi(img, x1, y1, x2, y2):
@@ -76,3 +76,46 @@ def cv2_gaussian_blur(img, kernel_size, sigmaX, dst, sigmaY):
 
 def cv2_median_blur(img, kernel_size):
     return cv.medianBlur(img, kernel_size)
+
+
+def cv2_pyr_down(img, width, height):
+    return cv.pyrDown(img, dstsize=(width, height))
+
+
+def cv2_sobel(show_image, kernel_size, x_alpha, y_alpha):
+    sobel1 = cv.convertScaleAbs(cv.Sobel(show_image, cv.CV_64F, 0, 1, ksize=kernel_size))
+    sobel2 = cv.convertScaleAbs(cv.Sobel(show_image, cv.CV_64F, 1, 0, ksize=kernel_size))
+    rsSobel = cv.addWeighted(sobel1, x_alpha, sobel2, y_alpha, 0)
+    # return np.hstack((sobel1, sobel2, rsSobel))
+    return rsSobel
+
+
+def cv2_scharr(show_image, x_alpha, y_alpha):
+    sobel1 = cv.convertScaleAbs(cv.Scharr(show_image, cv.CV_64F, 0, 1))
+    sobel2 = cv.convertScaleAbs(cv.Scharr(show_image, cv.CV_64F, 1, 0))
+    rsSobel = cv.addWeighted(sobel1, x_alpha, sobel2, y_alpha, 0)
+    # return np.hstack((sobel1, sobel2, rsSobel))
+    return rsSobel
+
+
+def cv2_laplacian(show_image, kernel_size):
+    return cv.convertScaleAbs(cv.Laplacian(show_image, cv.CV_64F, ksize=kernel_size))
+
+
+def cv2_canny(show_image, threshold1, threshold2):
+    return cv.Canny(show_image, threshold1, threshold2)
+
+
+def cv2_contours(show_image, contours_mode, contours_method):
+    # 在进行过如转灰度图一类的操作后, 实际会处理为单通道图像, 但是由于显示组件始终处理为3通图, 故而做轮廓检测一类需要单通道图像时, 直接取0通道就好了
+    # 如果直接传入彩图也可以处理,就转成灰度图
+    # 传入灰度图也行,灰度图转灰度图也不会出错
+    show_image_copy = show_image.copy()
+    s2 = cv.cvtColor(show_image_copy, cv.COLOR_BGR2GRAY)
+    contours, hierarchy = cv.findContours(s2, eval(contours_mode), eval(contours_method))
+    tt = cv.drawContours(show_image_copy, contours, -1, (255, 0, 0), 5)
+    cnts = []
+    for index, cnt in enumerate(contours):
+        area = cv.contourArea(cnt)
+        cnts.append(f"{index}:area={area}")
+    return tt, str(cnts)
