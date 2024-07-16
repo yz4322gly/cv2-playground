@@ -17,5 +17,5 @@ import numpy as np
 ```
 
 ## 启动/环境
-### 直接运行web_start.py即可
+### 直接运行app.py即可
 ### 基于python3.9开发

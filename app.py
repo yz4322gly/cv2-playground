@@ -507,4 +507,4 @@ demo = gr.TabbedInterface([cv_playground],
                           ["cv_playground"])
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="[::]",server_port=64121)
